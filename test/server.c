@@ -2,8 +2,9 @@
 #include <errno.h> 
 #include <netinet/in.h> 
 #include <sys/socket.h> 
+#include "vector.h"
 
-#define DATA_BUFFER 300
+#define DATA_BUFFER 4000
 
 int create_tcp_server_socket() {
 	struct sockaddr_in saddr;
@@ -20,7 +21,7 @@ int create_tcp_server_socket() {
 
 	/* Initialize the socket address structure */
 	saddr.sin_family = AF_INET;         
-	saddr.sin_port = htons(7000);     
+	saddr.sin_port = htons(25515);     
 	saddr.sin_addr.s_addr = INADDR_ANY; 
 
 	/* Step2: bind the socket to port 7000 on the local host */
@@ -43,10 +44,14 @@ int create_tcp_server_socket() {
 
 int main () {
 	struct sockaddr_in new_client_addr;
-	int fd, new_fd, ret_val, index;
+	int fd, new_fd, ret_val, index, len;
 	socklen_t addrlen;
-	long buf[300];
-
+	long buf[DATA_BUFFER];
+	long result;
+	
+	Vector vec; // create new vector struct
+	vector_init(&vec); // initialize vector, to be sent to server
+	
 	/* Create the server socket */
 	fd = create_tcp_server_socket(); 
 	if (fd == -1) {
@@ -66,20 +71,24 @@ int main () {
 	/* Receive data */
 	printf("Let us wait for the client to send some data\n");
 	do {
-		ret_val = recv(new_fd, buf, DATA_BUFFER*4, 0);
+		ret_val = recv(new_fd,buf, DATA_BUFFER, 0);
 		printf("Received data (len %d bytes)\n", ret_val);
-		if (ret_val > 0) 
-			//printf("Received data: %ld\n", buf[0]);
-			index = 0;
-			while(index < ret_val){
-				printf("%d: %ld\n",index, buf[index++]);
-			}
-		if (ret_val == -1) {
+		if (ret_val > 0) {
+			vector_load(&vec,buf,ret_val/4);
+		}
+		else if (ret_val == -1) {
 			printf("recv() failed [%s]\n", strerror(errno));
 			break;
 		}
 	}while (ret_val != 0);
 
+	vector_print(&vec);
+	printf("min: %ld\n", vector_min(&vec));
+	printf("max: %ld\n", vector_max(&vec));
+	printf("sum: %ld\n", vector_sum(&vec));
+	printf("sos: %ld\n", vector_sos(&vec));
+	vector_free(&vec);
+	
 	/* Close the sockets */
 	close(fd);
 	close(new_fd);

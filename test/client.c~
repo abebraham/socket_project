@@ -4,11 +4,9 @@
 #include <netdb.h> 
 #include "vector.h"
 
-#define DATA_BUFFER "Mona Lisa was painted by Leonardo da Vinci"
-
 int main(int argc, char *argv[] ){
 	FILE *file;
-	file = fopen("nums.csv", "r");
+	file = fopen("nums_999.csv", "r");
 	char line[16]; // range -2,147,483,648 to +2,147,483,648 (max characters = 13 )
 
 	Vector vec; // create new vector struct
@@ -36,32 +34,32 @@ int main(int argc, char *argv[] ){
 	/* Step1: create a TCP socket */
 	fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); 
 	if (fd == -1) {
-	 fprintf(stderr, "socket failed [%s]\n", strerror(errno));
-	 return -1;
+		fprintf(stderr, "socket failed [%s]\n", strerror(errno));
+		return -1;
 	}
 	printf("Created a socket with fd: %d\n", fd);
 
 	/* Let us initialize the server address structure */
 	saddr.sin_family = AF_INET;         
-	saddr.sin_port = htons(7000);     
+	saddr.sin_port = htons(25515);     
 	local_host = gethostbyname("127.0.0.1");
 	saddr.sin_addr = *((struct in_addr *)local_host->h_addr);
 
 	/* Step2: connect to the TCP server socket */
 	ret_val = connect(fd, (struct sockaddr *)&saddr, sizeof(struct sockaddr_in));
 	if (ret_val == -1) {
-	 fprintf(stderr, "connect failed [%s]\n", strerror(errno));
-	 close(fd);
-	 return -1;
+		fprintf(stderr, "connect failed [%s]\n", strerror(errno));
+		close(fd);
+		return -1;
 	}
 	printf("The Socket is now connected\n");
 
 	printf("Let us sleep before we start sending data\n");
-	sleep(5);
+	sleep(1);
 
 	/* Next step: send some data */
-	ret_val = send(fd,vec.data, vec.size * sizeof(vec.data), 0);
-	printf("Successfully sent data (len %d bytes): %ld\n", ret_val, *vec.data);
+	ret_val = send(fd, (void *)vec.data, sizeof(vec.data) * vec.size, 0);
+	printf("Successfully sent data (len %d bytes):\n", ret_val);	
 
 	/* Last step: close the socket */
 	vector_free( &vec ); // free vector array

@@ -50,17 +50,18 @@ void vector_free(Vector *vector) {
   free(vector->data);
 }
 
+// for troubleshooting purposes
 void vector_print(Vector *vector){
 	unsigned int i = 0;
-	for(i; i < vector->size	; i++){
-		printf("%ld\n",vector_get(vector, i)); 
+	for(i; i < vector->size; i++){
+		printf("%d: %ld\n",i,vector_get(vector, i)); 
 	}
 }
 
 long vector_min(Vector *vector){
 	unsigned int i = 0; 
 	long min = vector_get(vector,0); // set min to first number in vector
-	for(i; i < vector->size - 1; i++){
+	for(i; i < vector->size; i++){
 		if( min > vector_get(vector,i) ){
 			min = vector_get(vector,i);
 		}
@@ -71,7 +72,7 @@ long vector_min(Vector *vector){
 long vector_max(Vector *vector){
 	unsigned int i = 0;
 	long max = 0;
-	for(i; i < vector->size - 1; i++){
+	for(i; i < vector->size; i++){
 		if( max < vector_get(vector,i) ){
 			max = vector_get(vector,i);
 		} 
@@ -82,7 +83,7 @@ long vector_max(Vector *vector){
 long vector_sum(Vector *vector){
 	unsigned int i = 0;
 	long sum = 0;
-	for(i; i < vector->size - 1; i++){
+	for(i; i < vector->size; i++){
 		sum = sum + vector->data[i];
 	}
 	return sum;
@@ -91,11 +92,18 @@ long vector_sum(Vector *vector){
 long vector_sos(Vector *vector){
 	unsigned int i = 0;
 	long sos = 0;
-	for(i; i < vector->size - 1; i++){
+	for(i; i < vector->size; i++){
 		sos = sos + vector->data[i] * vector->data[i];
 	}
 	return sos;
 } 
+
+void vector_load(Vector *vector,long * buf,int len){		
+	int index = 0;
+	while(index < len ){
+		vector_append(vector, buf[index++]);
+	}
+}
 
 
 
